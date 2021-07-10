@@ -1,5 +1,5 @@
 public class listaMusica {
-    private music[] lista = new music[12];
+     music[] lista = new music[12];
 
     public listaMusica() {
         lista[0] = new music("track" + 0, "artista" + 0, 30000);
@@ -17,5 +17,8 @@ public class listaMusica {
     }
     public music getMusica(int indice){
      return this.lista[indice];
+    }
+    public String getNomeMusica(int indice){
+        return this.lista[indice].getNomeMusica();
     }
 }

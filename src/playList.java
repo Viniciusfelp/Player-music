@@ -8,12 +8,16 @@ public class playList {
     }
     public void addMusic(music musica){ //adicionar música no arraylist
         playlist.add(musica);
-        System.out.println("Musica Adicionada com sucesso!");
+        System.out.println(musica.getNomeMusica()+" Adicionada com sucesso!");
     }
     public void removeMusic (int i){ //remover música do arrayList
-         playlist.remove(i);
-        System.out.println("Musica removida com sucesso!");
-
+        if(playlist.isEmpty()){
+            System.out.println("A playList está vazia");
+        }else{
+            System.out.println(playlist.get(i).getNomeMusica()+" removida com sucesso!");
+            playlist.remove(i);
+        }
     }
+
 }
 
