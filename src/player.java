@@ -19,7 +19,7 @@ public class player {
         //Thread remove = new Thread(new remover());
         //Thread add = new Thread (new adicionar());
 
-    }else if(opc==2){ //remover músicaas
+    }else if(opc==2){ //remover músicas
             System.out.println("Digite o número da música para remover da Playlist:");
             int mEscolhido = s.nextInt();
             playlist.removeMusic(mEscolhido);
