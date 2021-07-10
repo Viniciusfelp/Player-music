@@ -3,6 +3,13 @@ public class music {
     private String nomeArtista;
     private int duracaoMusica;
 
+    public music(String nMsica, String nArtista, int dMusica){
+        this.nomeMusica = nMsica;
+        this.nomeArtista = nArtista;
+        this.duracaoMusica = dMusica;
+    }
+
+
     public String getNomeMusica() {
         return nomeMusica;
     }
