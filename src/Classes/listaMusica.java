@@ -1,5 +1,7 @@
+package Classes;
+
 public class listaMusica {
-     music[] lista = new music[12];
+     public music[] lista = new music[12];
 
     public listaMusica() {
         lista[0] = new music("track" + 0, "artista" + 0, 30000);
