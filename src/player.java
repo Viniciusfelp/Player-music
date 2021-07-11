@@ -7,13 +7,13 @@ import java.util.Scanner;
 public class player {
     public static void main(String[] args){
         Scanner s = new Scanner(System.in);
-        listaMusica listaDeMusicas=new listaMusica();
+        listaMusica listaDeMusicas = new listaMusica();
         System.out.println("Seu acervo de músicas:");
         for(int i = 0; i < listaDeMusicas.lista.length; i++ ){
             System.out.println(i+"->"+listaDeMusicas.getNomeMusica(i));
         }
         while(s.hasNext()){
-            System.out.println("1- Adicionar musica na Classes.playList:\n2- Remover Musica da Classes.playList: ");
+            System.out.println("1- Adicionar musica na playList:\n2- Remover Musica da playList: ");
             int opc = s.nextInt();
             if(opc == 1){
                 System.out.println("Digite o número da música para adicionar à Playlist:");
