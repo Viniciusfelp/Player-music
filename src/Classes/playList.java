@@ -15,11 +15,20 @@ public class playList {
     public void removeMusic (int i){ //remover música do arrayList
         if(playlist.isEmpty()){
             System.out.println("A playList está vazia");
+        }else if(i<0||i>playlist.size()-1){ //checa se o index passado pra remoção é válido
+            System.out.println("Música não encontrada!");
         }else{
             System.out.println(playlist.get(i).getNomeMusica()+" removida com sucesso!");
             playlist.remove(i);
         }
     }
+
+    public void getPlaylistString() { //printa a playList atual
+        for (int i =0;i<playlist.size();i++){
+            System.out.println(i+"-"+playlist.get(i).getNomeMusica());
+        }
+    }
+
 
 }
 
