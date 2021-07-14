@@ -2,13 +2,24 @@ package Metodos;
 
 import Classes.playList;
 
-public class remover implements Runnable{
+public class remover extends lock implements Runnable {
     playList listaDeReproducao = new playList();
     private final int indiceMusicaEscolhida;
-    public remover(int indice){
+
+    public remover(int indice) {
         this.indiceMusicaEscolhida = indice;
     }
     public void run() {
-        listaDeReproducao.removeMusic(indiceMusicaEscolhida);
+        getAcessLock().lock();
+        try {
+            while (isOcupado()) getCanWrite().await();
+            listaDeReproducao.removeMusic(indiceMusicaEscolhida);
+            setOcupado(true);
+            getCanRead().signal();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            getAcessLock().unlock();
+        }
     }
 }
