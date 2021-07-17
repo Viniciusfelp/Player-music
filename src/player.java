@@ -2,6 +2,7 @@ import Classes.listaMusica;
 import Classes.playList;
 import Metodos.adicionar;
 import Metodos.remover;
+
 import java.util.Scanner;
 
 public class player {
@@ -17,7 +18,7 @@ public class player {
             System.out.println(i+"->"+listaDeMusicas.getNomeMusica(i));
         }
         while(fecharPrograma){ //laço do programa em si
-            int musicaEscolhida=0;//será escolhida mais a frente
+            int musicaEscolhida;//será escolhida mais a frente
             System.out.println("\n1- Adicionar Musica na playList\n2- Remover Musica da playList \n0- Fechar programa\n "); //opções do programa
 
             int opcaoMenu = s.nextInt();//opção escolhida pelo usuário para executar alguma das ações a seguir:

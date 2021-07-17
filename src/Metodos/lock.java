@@ -6,8 +6,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class lock {
     private final Lock acessLock = new ReentrantLock();
-    private final Condition canWrite = acessLock.newCondition();
-    private final Condition canRead = acessLock.newCondition();
+    private final Condition condition = acessLock.newCondition();
     private boolean ocupado = false;
 
     public boolean isOcupado() {
@@ -22,11 +21,7 @@ public class lock {
         return acessLock;
     }
 
-    public Condition getCanWrite() {
-        return canWrite;
-    }
-
-    public Condition getCanRead() {
-        return canRead;
+    public Condition getCondition() {
+        return condition;
     }
 }
