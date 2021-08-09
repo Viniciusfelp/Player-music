@@ -18,7 +18,7 @@ public class listaMusica {
         lista[11] = new music("track" + 11, "artista" + 11, 30000);
     }
     public music getMusica(int indice){
-     return this.lista[indice];
+        return this.lista[indice];
     }
     public String getNomeMusica(int indice){
         return this.lista[indice].getNomeMusica();
