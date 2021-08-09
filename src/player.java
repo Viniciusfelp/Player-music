@@ -1,6 +1,8 @@
 import Classes.listaMusica;
 import Classes.playList;
+import Metodos.Play;
 import Metodos.adicionar;
+import Metodos.avancar;
 import Metodos.remover;
 
 import java.util.Scanner;
@@ -19,12 +21,16 @@ public class player {
         }
         while(fecharPrograma){ //laço do programa em si
             int musicaEscolhida;//será escolhida mais a frente
-            System.out.println("\n1- Adicionar Musica na playList\n2- Remover Musica da playList \n0- Fechar programa\n "); //opções do programa
+            System.out.println("\n1- Adicionar Musica na playList\n2- Remover Musica da playList \n3- play\n0- Fechar programa\n "); //opções do programa
 
             int opcaoMenu = s.nextInt();//opção escolhida pelo usuário para executar alguma das ações a seguir:
+            boolean pauseFlag = false;
             try { //bloco try/catch para executar os .join()
                 Thread add = new Thread(); //instancias das threads de adição e remoção
                 Thread remove = new Thread();
+                Thread play = new Thread();
+                Thread avancar = new Thread();
+                Thread voltar = new Thread();
                 switch (opcaoMenu) {
                     case 1:
                         System.out.println("Digite o número da música para adicionar à Playlist:");
@@ -39,6 +45,20 @@ public class player {
                         remove = new Thread(new remover(musicaEscolhida, playerDeMusicas));//Parâmetros de execução da Thread remove
                         remove.start();//execução da Thread
                         break;
+                    case 3:
+                        if(pauseFlag){
+                            play.notify();
+                            pauseFlag = false;
+                        }else{
+                            play = new Thread(new Play(playerDeMusicas.getMusicaAtual(), playerDeMusicas));
+                            play.start();
+                        }
+                    case 4:
+                        pauseFlag = true;
+                        play.wait();
+                    case 5:
+                        avancar = new Thread(new avancar(playerDeMusicas.getMusicaAtual(), playerDeMusicas));
+                        avancar.start();
                     case 0:
                         fecharPrograma = false; //booleano que seta o fim do programa(sair do laço while)
                         System.out.println("Programa finalizado!");

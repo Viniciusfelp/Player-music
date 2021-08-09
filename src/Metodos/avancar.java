@@ -8,9 +8,9 @@ public class avancar implements Runnable {
         this.listaDeReproducao = listaDeReproducao;
         this.indiceMusicaEscolhida = indice;
     }
-
     @Override
     public void run() {
-        new play(indiceMusicaEscolhida+1, listaDeReproducao);
+        listaDeReproducao.setMusicaAtual(listaDeReproducao.getMusicaAtual()+1);
+        new Play(indiceMusicaEscolhida, listaDeReproducao);
     }
 }

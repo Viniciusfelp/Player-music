@@ -4,9 +4,11 @@ import java.util.ArrayList;
 
 public class playList {
     private final ArrayList<music>playlist;
+    private int musicaAtual;
 
     public playList(){ //construtor
         this.playlist= new ArrayList<>();
+        this.musicaAtual = 0;
     }
     public void addMusic(music musica){ //adicionar música no arraylist
         playlist.add(musica);
@@ -39,6 +41,12 @@ public class playList {
         }
     }
 
+    public int getMusicaAtual() {
+        return musicaAtual;
+    }
 
+    public void setMusicaAtual(int musicaAtual) {
+        this.musicaAtual = musicaAtual;
+    }
 }
 
