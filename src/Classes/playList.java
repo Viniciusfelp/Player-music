@@ -1,6 +1,7 @@
 package Classes;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class playList {
     private final ArrayList<music>playlist;
@@ -47,6 +48,10 @@ public class playList {
 
     public void setMusicaAtual(int musicaAtual) {
         this.musicaAtual = musicaAtual;
+    }
+
+    public ArrayList<music> getPlaylist() {
+        return this.playlist;
     }
 }
 
