@@ -30,7 +30,7 @@ public class playList {
         }else if(i<0||i>playlist.size()-1){ //checa se o index passado pra remoção é válido
             System.out.println("Música não encontrada!");
         }else{
-            System.out.println(playlist.get(i).getNomeMusica()+" removida com sucesso!");
+            System.out.println(playlist.get(i).getNomeMusica()+"");
         }
         return playlist.get(i).getDuracaoMusica();
     }

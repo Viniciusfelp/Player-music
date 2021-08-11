@@ -10,6 +10,6 @@ public class voltar implements Runnable{
     @Override
     public void run() {
         listaDeReproducao.setMusicaAtual(listaDeReproducao.getMusicaAtual()-1);
-        new Play(listaDeReproducao.getMusicaAtual(), listaDeReproducao);
+        new Play(listaDeReproducao);
     }
 }

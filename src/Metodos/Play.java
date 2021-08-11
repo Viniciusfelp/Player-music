@@ -4,16 +4,13 @@ import Classes.playList;
 
 public class Play extends Thread{
     private final playList listaDeReproducao;
-    private final int indiceMusicaEscolhida;
-
-    public Play(int indice, playList listaDeReproducao) {
-        this.indiceMusicaEscolhida = indice;
+    public Play(playList listaDeReproducao) {
         this.listaDeReproducao = listaDeReproducao;
     }
     public void run() {
         try {
             sleep(listaDeReproducao.play(listaDeReproducao.getMusicaAtual()));
-            new avancar(listaDeReproducao.getMusicaAtual(), listaDeReproducao);
+            new avancar(listaDeReproducao);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
