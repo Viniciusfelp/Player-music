@@ -1,5 +1,4 @@
 
-
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -10,10 +9,10 @@ import java.awt.event.ActionListener;
 import Classes.listaMusica;
 import Classes.music;
 import Classes.playList;
-import Metodos.adicionar;
-import Metodos.remover;
+import Metodos.*;
 
 public class GUI implements ActionListener {
+
    int indexOfselectedMusicToAdd=-1;
    int indexOfselectedMusicToRemove=-1;
    music getSelectedMusicToAdd=null;
@@ -22,51 +21,56 @@ public class GUI implements ActionListener {
    listaMusica listaDeMusicas = new listaMusica();
    DefaultListModel playlistModel = new DefaultListModel();
    JList actualPlaylist = new JList(playlistModel);
+   boolean pauseFlag = false;
 
+   Thread play_thread = new Thread();
+   Thread avancar_thread = new Thread();
+   Thread voltar_thread = new Thread();
+   Thread playTimer = new Thread();
 
-   private final JFrame guiFrame = new JFrame();
+   JFrame guiFrame = new JFrame();
 
    //Panels
-   private final JPanel eastPanel = new JPanel();
-   private final JPanel westPanel = new JPanel();
-   private final JPanel centerPanel = new JPanel();
-   private final JPanel progressBarPanel = new JPanel();
-   private final JPanel actionBtnsPanel = new JPanel();
+   JPanel eastPanel = new JPanel();
+   JPanel westPanel = new JPanel();
+   JPanel centerPanel = new JPanel();
+   JPanel progressBarPanel = new JPanel();
+   JPanel actionBtnsPanel = new JPanel();
 
    //Progress Bar
-   private JProgressBar progressBar = new JProgressBar();
+   JProgressBar progressBar = new JProgressBar();
 
 
    //Lista e Scroller da Lista de musicas
-   private final JScrollPane listScroller;
-   private final JScrollPane playlistScroller;
+   JScrollPane listScroller;
+   JScrollPane playlistScroller;
 
    //Botão Add music
-   private final JButton add = new JButton("Add Music");
+   JButton add = new JButton("Add Music");
 
    //Botão Remove music
-   private final JButton rmv = new JButton("Remove Music");
-   private final JButton play_btn = new JButton("Play");
-   private final JButton pause_btn = new JButton("Pause");
-   private final JButton step_forward = new JButton("Step Forward");
-   private final JButton step_backward = new JButton("Step Backward");
+   JButton rmv = new JButton("Remove Music");
+   JButton play_btn = new JButton("Play");
+   JButton pause_btn = new JButton("Pause");
+   JButton step_forward = new JButton("Avançar");
+   JButton step_backward = new JButton("Voltar");
 
 
    public GUI() {
       //Configs da janela
-      this.guiFrame.setTitle("Malvadeza Music");
-      this.guiFrame.setSize(800, 300);
-      this.guiFrame.setLocation(500, 300);
-      this.guiFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-      this.guiFrame.setLayout(new BorderLayout(10, 10));
+      guiFrame.setTitle("Malvadeza Music");
+      guiFrame.setSize(800, 300);
+      guiFrame.setLocation(500, 300);
+      guiFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+      guiFrame.setLayout(new BorderLayout(10, 10));
 
       //Config westPanel
-      this.westPanel.setLayout(new BoxLayout(this.westPanel, BoxLayout.PAGE_AXIS));
-      this.westPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+      westPanel.setLayout(new BoxLayout(this.westPanel, BoxLayout.PAGE_AXIS));
+      westPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
       //Botão AddMusic
-      this.westPanel.add(this.add);
-      this.add.addActionListener(this);
+      westPanel.add(add);
+      add.addActionListener(this);
 
       //Config Lista de Musicas
       JList musicList = new JList(listaDeMusicas.lista);
@@ -87,12 +91,12 @@ public class GUI implements ActionListener {
 
 
       //Config eastPanel
-      this.eastPanel.setLayout(new BoxLayout(this.eastPanel, BoxLayout.PAGE_AXIS));
-      this.eastPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+      eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.PAGE_AXIS));
+      eastPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
       //Botão RemoveMusic
-      this.eastPanel.add(this.rmv);
-      this.rmv.addActionListener(this);
+      eastPanel.add(rmv);
+      rmv.addActionListener(this);
 
       //Config Playlist atual
       JList finalPlaylist = actualPlaylist;
@@ -107,43 +111,45 @@ public class GUI implements ActionListener {
       });
       playlistScroller = new JScrollPane(finalPlaylist);
       playlistScroller.setPreferredSize(new Dimension(200, 80));
-      eastPanel.add(this.playlistScroller, finalPlaylist);
+      eastPanel.add(playlistScroller, finalPlaylist);
 
       //Config centerPanel
-      this.centerPanel.setLayout(new BorderLayout());
+      centerPanel.setLayout(new BorderLayout());
 
       //Config progressBar
-      this.progressBar.setStringPainted(true);
-      this.progressBar.setSize(200, 25);
-      this.progressBarPanel.add(this.progressBar);
+      progressBar.setStringPainted(true);
+      progressBar.setMaximum(30000);
+      progressBar.setValue(0);
+      //progressBar.setSize(200, 25);
+      progressBarPanel.add(progressBar);
 
 
       //Botão Voltar
-      this.actionBtnsPanel.add(this.step_backward);
-      this.step_backward.addActionListener(this);
+      actionBtnsPanel.add(step_backward);
+      step_backward.addActionListener(this);
 
       //Botão Play
-      this.actionBtnsPanel.add(this.play_btn);
-      this.play_btn.addActionListener(this);
+      actionBtnsPanel.add(play_btn);
+      play_btn.addActionListener(this);
 
       //Botão Pause
-      this.actionBtnsPanel.add(this.pause_btn);
-      this.pause_btn.addActionListener(this);
+      actionBtnsPanel.add(pause_btn);
+      pause_btn.addActionListener(this);
 
       //Botão Avançar
 
-      this.actionBtnsPanel.add(this.step_forward);
-      this.step_forward.addActionListener(this);
+      actionBtnsPanel.add(this.step_forward);
+      step_forward.addActionListener(this);
 
 
       //Configs finais
 
-      this.centerPanel.add(this.progressBarPanel, BorderLayout.NORTH);
-      this.centerPanel.add(this.actionBtnsPanel, BorderLayout.CENTER);
-      this.guiFrame.add(centerPanel, BorderLayout.CENTER);
-      this.guiFrame.add(eastPanel, BorderLayout.EAST);
-      this.guiFrame.add(westPanel, BorderLayout.WEST);
-      this.guiFrame.setVisible(true);
+      centerPanel.add(this.progressBarPanel, BorderLayout.NORTH);
+      centerPanel.add(this.actionBtnsPanel, BorderLayout.CENTER);
+      guiFrame.add(centerPanel, BorderLayout.CENTER);
+      guiFrame.add(eastPanel, BorderLayout.EAST);
+      guiFrame.add(westPanel, BorderLayout.WEST);
+      guiFrame.setVisible(true);
 
    }
    public void addAtPlaylist(music musicAdded){
@@ -158,7 +164,6 @@ public class GUI implements ActionListener {
    @Override
    public void actionPerformed(ActionEvent e) {
       try {
-
          Thread add_thread = new Thread();
          Thread rmv_thread=new Thread();
          switch (e.getActionCommand()){
@@ -171,16 +176,57 @@ public class GUI implements ActionListener {
                break;
             case"Remove Music":
                if (indexOfselectedMusicToRemove>=0){
-                  System.out.println(indexOfselectedMusicToRemove);
-                  System.out.println(playerDeMusicas.getPlaylist().size());
                   rmv_thread=new Thread(new remover(indexOfselectedMusicToRemove,playerDeMusicas));
                   rmv_thread.start();
                   removeOfPlaylist(getSelectedMusicToRemove);
                }
                break;
+            case"Play":
+               if (pauseFlag){
+                  play_thread.resume();
+                  playTimer.resume();
+                  pauseFlag = false;
+               }else{
+                  if (!playerDeMusicas.getPlaylist().isEmpty()&&!play_thread.isAlive()){
+                     progressBar.setValue(0);
+                     play_thread = new Thread(new Play(playerDeMusicas));
+                     play_thread.start();
+                     playTimer = new Thread(new Timer());
+                     playTimer.start();
+                  }
+               }
+               break;
+            case"Pause":
+               if (play_thread.isAlive()){
+                  pauseFlag=true;
+                  play_thread.suspend();
+                  playTimer.suspend();
+               }
+               break;
+            case"Voltar":
+               if (playerDeMusicas.getMusicaAtual()>0){
+                  play_thread.stop();
+                  playTimer.stop();
+                 voltar_thread=new Thread(new voltar(playerDeMusicas));
+                  playTimer = new Thread(new Timer());
+                  playTimer.start();
+                  voltar_thread.start();
+               }
+               break;
+            case"Avançar":
+               if (playerDeMusicas.getMusicaAtual()+1<playerDeMusicas.getPlaylist().size()){
+                  play_thread.stop();
+                  playTimer.stop();
+                  avancar_thread=new Thread(new avancar(playerDeMusicas));
+                  playTimer = new Thread(new Timer());
+                  playTimer.start();
+                  avancar_thread.start();
+               }
+               break;
          }
          add_thread.join();
          rmv_thread.join();
+         //play_thread.join();
 
 
       }catch (InterruptedException y){
@@ -188,6 +234,78 @@ public class GUI implements ActionListener {
       }
 
    }
+
+   public class Play extends Thread{
+
+      public Play(playList listaDeReproducao) {
+         playerDeMusicas = listaDeReproducao;
+      }
+      public void run() {
+         try {
+            sleep(playerDeMusicas.play(playerDeMusicas.getMusicaAtual()));
+            if (playerDeMusicas.getPlaylist().size()>playerDeMusicas.getMusicaAtual()+1){
+               avancar_thread = new Thread(new avancar(playerDeMusicas));
+               avancar_thread.start();
+            }
+         } catch (InterruptedException e) {
+            e.printStackTrace();
+         }
+      }
+
+   }
+
+   public class avancar implements Runnable {
+
+      public avancar(playList listaDeReproducao){
+         playerDeMusicas = listaDeReproducao;
+      }
+
+      @Override
+      public void run() {
+         playerDeMusicas.setMusicaAtual(playerDeMusicas.getMusicaAtual()+1);
+         if (play_thread.isAlive()){
+            play_thread.stop();
+         }
+         play_thread=new Thread(new Play(playerDeMusicas));
+         playTimer=new Thread(new Timer());
+         playTimer.start();
+         play_thread.start();
+      }
+   }
+
+   public class voltar implements Runnable{
+
+      public voltar (playList listaDeReproducao){
+         playerDeMusicas= listaDeReproducao;
+      }
+      @Override
+      public void run() {
+         playerDeMusicas.setMusicaAtual(playerDeMusicas.getMusicaAtual()-1);
+         play_thread=new Thread(new Play(playerDeMusicas));
+      }
+   }
+
+
+
+   public class Timer extends Thread{  //Esse método serve apenas para simular o andamento da barra de progresso
+      public void run(){               //já que a classe que roda o sleep com o timer da musica não consegue
+         progressBar.setValue(0);                              //interferir no progressBar.value
+         while(progressBar.getValue()<30000&&!avancar_thread.isAlive()){
+            try {
+               sleep(1000);
+               progressBar.setValue(progressBar.getValue()+1000);
+            } catch (InterruptedException e) {
+               e.printStackTrace();
+            }
+         }
+         progressBar.setValue(0);
+      }
+   }
 }
+
+
+
+
+
 
 

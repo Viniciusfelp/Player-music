@@ -12,6 +12,8 @@ public class player {
         listaMusica listaDeMusicas = new listaMusica(); //instância da lista de músicas já predefinida
         playList playerDeMusicas = new playList();//instância do player de músicas que recebe os métodos(add,remove,skip,etc)
 
+        GUI musicPlayer = new GUI();
+
         System.out.println("Seu acervo de músicas:");
 
         for(int i = 0; i < listaDeMusicas.lista.length; i++ ){//laço para printar todas as músicas disponíveis
