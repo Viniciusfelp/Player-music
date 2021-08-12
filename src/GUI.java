@@ -13,6 +13,7 @@ import Metodos.*;
 
 public class GUI implements ActionListener {
 
+   //Auxiliares
    int indexOfselectedMusicToAdd=-1;
    int indexOfselectedMusicToRemove=-1;
    music getSelectedMusicToAdd=null;
@@ -40,13 +41,21 @@ public class GUI implements ActionListener {
    //Progress Bar
    JProgressBar progressBar = new JProgressBar();
 
-
-   //Lista e Scroller da Lista de musicas
+   //Scroller da Lista de musicas
    JScrollPane listScroller;
    JScrollPane playlistScroller;
 
+   //Model da playlist
+   DefaultListModel playlistModel = new DefaultListModel();
+   JList actualPlaylist = new JList(playlistModel);
+
    //Botão Add music
    JButton add = new JButton("Add Music");
+
+   //Label Infos da Música
+   JLabel nomeLabel = new JLabel();
+   JLabel autorLabel = new JLabel();
+   JLabel duracaoLabel = new JLabel();
 
    //Botão Remove music
    JButton rmv = new JButton("Remove Music");
@@ -123,7 +132,6 @@ public class GUI implements ActionListener {
       //progressBar.setSize(200, 25);
       progressBarPanel.add(progressBar);
 
-
       //Botão Voltar
       actionBtnsPanel.add(step_backward);
       step_backward.addActionListener(this);
@@ -137,15 +145,24 @@ public class GUI implements ActionListener {
       pause_btn.addActionListener(this);
 
       //Botão Avançar
-
       actionBtnsPanel.add(this.step_forward);
       step_forward.addActionListener(this);
 
+      //Config Labels
+      JPanel labelsPanel = new JPanel();
+      labelsPanel.setLayout(new GridLayout(3,1));
+      nomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+      autorLabel.setHorizontalAlignment(SwingConstants.CENTER);
+      duracaoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+      labelsPanel.add(nomeLabel);
+      labelsPanel.add(autorLabel);
+      labelsPanel.add(duracaoLabel);
+
 
       //Configs finais
-
-      centerPanel.add(this.progressBarPanel, BorderLayout.NORTH);
-      centerPanel.add(this.actionBtnsPanel, BorderLayout.CENTER);
+      centerPanel.add(progressBarPanel, BorderLayout.NORTH);
+      centerPanel.add(actionBtnsPanel, BorderLayout.CENTER);
+      centerPanel.add(labelsPanel,BorderLayout.SOUTH);
       guiFrame.add(centerPanel, BorderLayout.CENTER);
       guiFrame.add(eastPanel, BorderLayout.EAST);
       guiFrame.add(westPanel, BorderLayout.WEST);
@@ -181,13 +198,13 @@ public class GUI implements ActionListener {
                   removeOfPlaylist(getSelectedMusicToRemove);
                }
                break;
-            case"Play":
-               if (pauseFlag){
+            case"Play":  //Play
+               if (pauseFlag){ //Checa estado de Pause
                   play_thread.resume();
                   playTimer.resume();
                   pauseFlag = false;
                }else{
-                  if (!playerDeMusicas.getPlaylist().isEmpty()&&!play_thread.isAlive()){
+                  if (!playerDeMusicas.getPlaylist().isEmpty()&&!play_thread.isAlive()){ //Checa se não há outra música sendo tocada ou playlist vazia
                      progressBar.setValue(0);
                      play_thread = new Thread(new Play(playerDeMusicas));
                      play_thread.start();
@@ -196,25 +213,25 @@ public class GUI implements ActionListener {
                   }
                }
                break;
-            case"Pause":
+            case"Pause": //Pause
                if (play_thread.isAlive()){
                   pauseFlag=true;
                   play_thread.suspend();
                   playTimer.suspend();
                }
                break;
-            case"Voltar":
-               if (playerDeMusicas.getMusicaAtual()>0){
+            case"Voltar": //Voltar
+               if (playerDeMusicas.getMusicaAtual()>0){ //Checa se está na primeira posição da playlist
                   play_thread.stop();
                   playTimer.stop();
-                 voltar_thread=new Thread(new voltar(playerDeMusicas));
+                  voltar_thread=new Thread(new voltar(playerDeMusicas));
                   playTimer = new Thread(new Timer());
                   playTimer.start();
                   voltar_thread.start();
                }
                break;
-            case"Avançar":
-               if (playerDeMusicas.getMusicaAtual()+1<playerDeMusicas.getPlaylist().size()){
+            case"Avançar": //Avançar
+               if (playerDeMusicas.getMusicaAtual()+1<playerDeMusicas.getPlaylist().size()){ //Checaq se está na última posição da playlist
                   play_thread.stop();
                   playTimer.stop();
                   avancar_thread=new Thread(new avancar(playerDeMusicas));
@@ -227,21 +244,21 @@ public class GUI implements ActionListener {
          add_thread.join();
          rmv_thread.join();
          //play_thread.join();
-
-
       }catch (InterruptedException y){
          y.printStackTrace();
       }
 
    }
-
+   //Thread Play
    public class Play extends Thread{
-
       public Play(playList listaDeReproducao) {
          playerDeMusicas = listaDeReproducao;
       }
       public void run() {
          try {
+            nomeLabel.setText("Nome: "+playerDeMusicas.getPlaylist().get(playerDeMusicas.getMusicaAtual()).getNomeMusica());
+            autorLabel.setText("Artista: "+playerDeMusicas.getPlaylist().get(playerDeMusicas.getMusicaAtual()).getNomeArtista());
+            duracaoLabel.setText("Duração(ms): "+Integer.toString(playerDeMusicas.getPlaylist().get(playerDeMusicas.getMusicaAtual()).getDuracaoMusica()));
             sleep(playerDeMusicas.play(playerDeMusicas.getMusicaAtual()));
             if (playerDeMusicas.getPlaylist().size()>playerDeMusicas.getMusicaAtual()+1){
                avancar_thread = new Thread(new avancar(playerDeMusicas));
@@ -253,28 +270,24 @@ public class GUI implements ActionListener {
       }
 
    }
-
+   //Thread avançar
    public class avancar implements Runnable {
-
       public avancar(playList listaDeReproducao){
          playerDeMusicas = listaDeReproducao;
       }
-
       @Override
       public void run() {
          playerDeMusicas.setMusicaAtual(playerDeMusicas.getMusicaAtual()+1);
-         if (play_thread.isAlive()){
-            play_thread.stop();
-         }
+         playTimer.stop();
+         play_thread.stop();
          play_thread=new Thread(new Play(playerDeMusicas));
          playTimer=new Thread(new Timer());
          playTimer.start();
          play_thread.start();
       }
    }
-
+   //Thread voltar
    public class voltar implements Runnable{
-
       public voltar (playList listaDeReproducao){
          playerDeMusicas= listaDeReproducao;
       }
@@ -284,13 +297,11 @@ public class GUI implements ActionListener {
          play_thread=new Thread(new Play(playerDeMusicas));
       }
    }
-
-
-
-   public class Timer extends Thread{  //Esse método serve apenas para simular o andamento da barra de progresso
+   //Thread barra de progresso
+   public class Timer extends Thread{  //Essa thread serve apenas para simular o andamento da barra de progresso
       public void run(){               //já que a classe que roda o sleep com o timer da musica não consegue
          progressBar.setValue(0);                              //interferir no progressBar.value
-         while(progressBar.getValue()<30000&&!avancar_thread.isAlive()){
+         while(progressBar.getValue()<30000&&!avancar_thread.isAlive()&&play_thread.isAlive()){
             try {
                sleep(1000);
                progressBar.setValue(progressBar.getValue()+1000);
