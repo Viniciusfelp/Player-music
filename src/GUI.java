@@ -20,15 +20,20 @@ public class GUI implements ActionListener {
    music getSelectedMusicToRemove=null;
    playList playerDeMusicas = new playList();//instância do player de músicas que recebe os métodos(add,remove,skip,etc)
    listaMusica listaDeMusicas = new listaMusica();
-   DefaultListModel playlistModel = new DefaultListModel();
-   JList actualPlaylist = new JList(playlistModel);
-   boolean pauseFlag = false;
+   //DefaultListModel playlistModel = new DefaultListModel();
+   //JList actualPlaylist = new JList(playlistModel);
 
+   boolean pauseFlag = false;
+   boolean isAvancarAfterRemove=false;
+   boolean isRandom = false;
+
+   //Threads
    Thread play_thread = new Thread();
    Thread avancar_thread = new Thread();
    Thread voltar_thread = new Thread();
    Thread playTimer = new Thread();
 
+   ///Frames
    JFrame guiFrame = new JFrame();
 
    //Panels
@@ -45,12 +50,23 @@ public class GUI implements ActionListener {
    JScrollPane listScroller;
    JScrollPane playlistScroller;
 
+   //Model da lista de musicas
+   DefaultListModel listaDeMusicasModel = new DefaultListModel();
+   JList musicList = new JList();
+   JList finalMusicList = new JList();
+
    //Model da playlist
    DefaultListModel playlistModel = new DefaultListModel();
    JList actualPlaylist = new JList(playlistModel);
 
    //Botão Add music
    JButton add = new JButton("Add Music");
+
+   //Botão Modo de reprodução
+   JButton reproductionModeBtn = new JButton("Normal/Random");
+
+   //Botão Nova Music
+   JButton newMusic = new JButton("New Music");
 
    //Label Infos da Música
    JLabel nomeLabel = new JLabel();
@@ -59,14 +75,23 @@ public class GUI implements ActionListener {
 
    //Botão Remove music
    JButton rmv = new JButton("Remove Music");
+
    JButton play_btn = new JButton("Play");
    JButton pause_btn = new JButton("Pause");
    JButton step_forward = new JButton("Avançar");
    JButton step_backward = new JButton("Voltar");
 
+   //New Music component
+   JFrame newMusicFrame = new JFrame("New Music:");
+   JPanel newMusicPanel = new JPanel();
+   JLabel musicName =new JLabel();
+   JLabel authorName =new JLabel();
+   JTextField musicNameText = new JTextField();
+   JTextField authorNameText = new JTextField();
+   JButton addNewMusic = new JButton("Ok");
 
    public GUI() {
-      //Configs da janela
+      //Configs da guiFrame
       guiFrame.setTitle("Malvadeza Music");
       guiFrame.setSize(800, 300);
       guiFrame.setLocation(500, 300);
@@ -82,9 +107,13 @@ public class GUI implements ActionListener {
       add.addActionListener(this);
 
       //Config Lista de Musicas
-      JList musicList = new JList(listaDeMusicas.lista);
+      //musicList = new JList(listaDeMusicas.lista.toArray());
+      listaDeMusicas.lista.forEach(music->{
+         listaDeMusicasModel.addElement(music);
+      });
+      musicList = new JList(listaDeMusicasModel);
       musicList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-      JList finalMusicList = musicList;
+      finalMusicList = musicList;
       finalMusicList.addListSelectionListener(new ListSelectionListener() {
          @Override
          public void valueChanged(ListSelectionEvent e) {
@@ -97,6 +126,10 @@ public class GUI implements ActionListener {
       listScroller = new JScrollPane(finalMusicList);
       listScroller.setPreferredSize(new Dimension(200, 80));
       westPanel.add(this.listScroller, finalMusicList);
+
+      //Botão Add nova música ao banco de músicas
+      westPanel.add(newMusic);
+      newMusic.addActionListener(this);
 
 
       //Config eastPanel
@@ -145,8 +178,29 @@ public class GUI implements ActionListener {
       pause_btn.addActionListener(this);
 
       //Botão Avançar
-      actionBtnsPanel.add(this.step_forward);
+      actionBtnsPanel.add(step_forward);
       step_forward.addActionListener(this);
+
+      actionBtnsPanel.add(reproductionModeBtn);
+      reproductionModeBtn.addActionListener(this);
+
+      //Configs do popup New Music
+      musicName.setText("Music Name:");
+      authorName.setText("Author Name:");
+      newMusicFrame.setSize(300,250);
+      newMusicFrame.setLocation(800,300);
+      newMusicPanel.setLayout(new BoxLayout(newMusicPanel,BoxLayout.PAGE_AXIS));
+      newMusicPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+      musicNameText.setColumns(3);
+      authorNameText.setColumns(3);
+      newMusicPanel.add(musicName);
+      newMusicPanel.add(musicNameText);
+      newMusicPanel.add(authorName);
+      newMusicPanel.add(authorNameText);
+      addNewMusic.addActionListener(this);
+      newMusicPanel.add(addNewMusic);
+      newMusicFrame.add(newMusicPanel);
+
 
       //Config Labels
       JPanel labelsPanel = new JPanel();
@@ -173,6 +227,10 @@ public class GUI implements ActionListener {
       actualPlaylist.setModel(playlistModel);
       playlistModel.addElement(musicAdded);
    }
+   public void addAtMusicList (music musicAdded){
+      musicList.setModel(listaDeMusicasModel);
+      listaDeMusicasModel.addElement(musicAdded);
+   }
    public void removeOfPlaylist(music musicRemoved){
       actualPlaylist.setModel(playlistModel);
       playlistModel.removeElement(musicRemoved);
@@ -180,73 +238,86 @@ public class GUI implements ActionListener {
 
    @Override
    public void actionPerformed(ActionEvent e) {
-      try {
-         Thread add_thread = new Thread();
-         Thread rmv_thread=new Thread();
-         switch (e.getActionCommand()){
-            case"Add Music":
-               if (indexOfselectedMusicToAdd>=0){
-                  addAtPlaylist(getSelectedMusicToAdd);
-                  add_thread = new Thread(new adicionar(indexOfselectedMusicToAdd,playerDeMusicas,listaDeMusicas));
-                  add_thread.start();
-               }
-               break;
-            case"Remove Music":
-               if (indexOfselectedMusicToRemove>=0){
-                  rmv_thread=new Thread(new remover(indexOfselectedMusicToRemove,playerDeMusicas));
-                  rmv_thread.start();
-                  removeOfPlaylist(getSelectedMusicToRemove);
-               }
-               break;
-            case"Play":  //Play
-               if (pauseFlag){ //Checa estado de Pause
-                  play_thread.resume();
-                  playTimer.resume();
-                  pauseFlag = false;
-               }else{
-                  if (!playerDeMusicas.getPlaylist().isEmpty()&&!play_thread.isAlive()){ //Checa se não há outra música sendo tocada ou playlist vazia
-                     progressBar.setValue(0);
-                     play_thread = new Thread(new Play(playerDeMusicas));
-                     play_thread.start();
-                     playTimer = new Thread(new Timer());
-                     playTimer.start();
-                  }
-               }
-               break;
-            case"Pause": //Pause
-               if (play_thread.isAlive()){
-                  pauseFlag=true;
-                  play_thread.suspend();
-                  playTimer.suspend();
-               }
-               break;
-            case"Voltar": //Voltar
-               if (playerDeMusicas.getMusicaAtual()>0){ //Checa se está na primeira posição da playlist
-                  play_thread.stop();
-                  playTimer.stop();
-                  voltar_thread=new Thread(new voltar(playerDeMusicas));
+      Thread add_thread = new Thread();
+      Thread rmv_thread=new Thread();
+      switch (e.getActionCommand()){
+         case "Ok": //Botão do Pop-up que salva a nova música na playlist
+            music musicToBeAdded = new music(musicNameText.getText(),authorNameText.getText(),30000);
+            listaDeMusicas.lista.add(musicToBeAdded);
+            addAtMusicList(musicToBeAdded);
+            newMusicFrame.setVisible(false);
+            break;
+         case "New Music": //Botão que abre o pop-up para adicionar novas músicas
+            newMusicFrame.setVisible(true);
+            break;
+         case"Add Music":
+            if (indexOfselectedMusicToAdd>=0){
+               addAtPlaylist(getSelectedMusicToAdd);
+               add_thread = new Thread(new adicionar(indexOfselectedMusicToAdd,playerDeMusicas,listaDeMusicas));
+               add_thread.start();
+            }
+            break;
+         case"Remove Music":
+            if (indexOfselectedMusicToRemove>=0){
+               rmv_thread=new Thread(new remover(indexOfselectedMusicToRemove));
+               rmv_thread.start();
+               removeOfPlaylist(getSelectedMusicToRemove);
+            }
+            break;
+         case"Play":  //Play
+            if (pauseFlag){ //Checa estado de Pause
+               play_thread.resume();
+               playTimer.resume();
+               pauseFlag = false;
+            }else{
+               if (!playerDeMusicas.getPlaylist().isEmpty()&&!play_thread.isAlive()){ //Checa se não há outra música sendo tocada ou playlist vazia
+                  progressBar.setValue(0);
+                  play_thread = new Thread(new Play(playerDeMusicas));
+                  play_thread.start();
                   playTimer = new Thread(new Timer());
                   playTimer.start();
-                  voltar_thread.start();
                }
-               break;
-            case"Avançar": //Avançar
-               if (playerDeMusicas.getMusicaAtual()+1<playerDeMusicas.getPlaylist().size()){ //Checaq se está na última posição da playlist
-                  play_thread.stop();
-                  playTimer.stop();
-                  avancar_thread=new Thread(new avancar(playerDeMusicas));
-                  playTimer = new Thread(new Timer());
-                  playTimer.start();
-                  avancar_thread.start();
-               }
-               break;
-         }
-         add_thread.join();
-         rmv_thread.join();
-         //play_thread.join();
-      }catch (InterruptedException y){
-         y.printStackTrace();
+            }
+            break;
+         case"Pause": //Pause
+            if (play_thread.isAlive()){
+               pauseFlag=true;
+               play_thread.suspend();
+               playTimer.suspend();
+            }
+            break;
+         case"Voltar": //Voltar
+            if (playerDeMusicas.getMusicaAtual()>0){ //Checa se está na primeira posição da playlist
+               play_thread.stop();
+               playTimer.stop();
+               voltar_thread=new Thread(new voltar(playerDeMusicas));
+               playTimer = new Thread(new Timer());
+               playTimer.start();
+               voltar_thread.start();
+            }
+            break;
+         case"Avançar": //Avançar
+            if (playerDeMusicas.getMusicaAtual()+1<playerDeMusicas.getPlaylist().size()){ //Checaq se está na última posição da playlist
+               play_thread.stop();
+               playTimer.stop();
+               avancar_thread=new Thread(new avancar(playerDeMusicas,isAvancarAfterRemove));
+               playTimer = new Thread(new Timer());
+               playTimer.start();
+               avancar_thread.start();
+            }
+            break;
+         case "Normal/Random":
+            //AQUI VAI A LÓGICA DE ALTERAR O MODO DE REPRODUÇÃO ENTRE RANDOM E NORMAL
+            if(isRandom){
+               isRandom=!isRandom; //SEMPRE QUE O BOTÃO É CLICADO ELE CAI EM UM DOS SEGUINTES CONDICIONAIS E INVERTE O VALOR POIS O MODO FOI ALTERADO
+            }else{
+               isRandom=!isRandom;
+            }
+            break;
       }
+      //add_thread.join(); RETIRAR OS JOIN (COM JOIN FICA SEQUENCIAL)
+      //rmv_thread.join();
+      //play_thread.join();
 
    }
    //Thread Play
@@ -261,7 +332,7 @@ public class GUI implements ActionListener {
             duracaoLabel.setText("Duração(ms): "+Integer.toString(playerDeMusicas.getPlaylist().get(playerDeMusicas.getMusicaAtual()).getDuracaoMusica()));
             sleep(playerDeMusicas.play(playerDeMusicas.getMusicaAtual()));
             if (playerDeMusicas.getPlaylist().size()>playerDeMusicas.getMusicaAtual()+1){
-               avancar_thread = new Thread(new avancar(playerDeMusicas));
+               avancar_thread = new Thread(new avancar(playerDeMusicas,isAvancarAfterRemove));
                avancar_thread.start();
             }
          } catch (InterruptedException e) {
@@ -270,14 +341,65 @@ public class GUI implements ActionListener {
       }
 
    }
+
+   //Thread remover
+   public class remover extends lock implements Runnable {
+      int selectedMusicIndex;
+      public remover (int indexOfSelectedMusicToRemove){
+         selectedMusicIndex=indexOfSelectedMusicToRemove;
+      }
+      public void run() {
+         getAcessLock().lock();//Bloqueia esse objeto
+         try {
+            while (isOcupado()) getCondition().await();//Espera até que a thread possa escrever na playlist
+            setOcupado(true);//Indica que outra thread nao pode usar a funcao
+            playerDeMusicas.removeMusic(selectedMusicIndex);
+            if (playerDeMusicas.getMusicaAtual()==selectedMusicIndex){
+               if (playerDeMusicas.getMusicaAtual()+1<playerDeMusicas.getPlaylist().size()+1){
+                  isAvancarAfterRemove = true;
+                  playTimer.stop();
+                  play_thread.stop();
+                  avancar_thread=new Thread(new avancar(playerDeMusicas, isAvancarAfterRemove));
+                  playTimer=new Thread(new Timer());
+                  playTimer.start();
+                  avancar_thread.start();
+               }else{
+                  playTimer.stop();
+                  progressBar.setValue(0);
+                  play_thread.stop();
+                  nomeLabel.setText("Nome: ");
+                  autorLabel.setText("Artista: ");
+                  duracaoLabel.setText("Duração(ms): ");
+               }
+
+            }
+            setOcupado(false);
+            getCondition().signalAll();//sinaliza para a thread que está esperando
+         } catch (InterruptedException e) {
+            e.printStackTrace();
+         } finally {
+            //Desbloqueia esse Objeto
+            getAcessLock().unlock();
+         }
+      }
+   }
+
    //Thread avançar
    public class avancar implements Runnable {
-      public avancar(playList listaDeReproducao){
+      boolean isAvancarAfterRemoveCurrentMusic;
+      public avancar(playList listaDeReproducao,boolean isAvancarAfterRemove){
+         isAvancarAfterRemoveCurrentMusic=isAvancarAfterRemove;
          playerDeMusicas = listaDeReproducao;
       }
       @Override
       public void run() {
-         playerDeMusicas.setMusicaAtual(playerDeMusicas.getMusicaAtual()+1);
+         System.out.println(isAvancarAfterRemoveCurrentMusic);
+         if (isAvancarAfterRemoveCurrentMusic){
+            playerDeMusicas.setMusicaAtual(playerDeMusicas.getMusicaAtual());
+            isAvancarAfterRemove=false;
+         }else {
+            playerDeMusicas.setMusicaAtual(playerDeMusicas.getMusicaAtual() + 1);
+         }
          playTimer.stop();
          play_thread.stop();
          play_thread=new Thread(new Play(playerDeMusicas));

@@ -1,26 +1,30 @@
 package Classes;
 
+import java.util.ArrayList;
+
 public class listaMusica {
-     public music[] lista = new music[12];
+    public ArrayList<music> lista = new ArrayList<music>();
 
     public listaMusica() {
-        lista[0] = new music("track" + 0, "artista" + 0, 30000);
-        lista[1] = new music("track" + 1, "artista" + 1, 30000);
-        lista[2] = new music("track" + 2, "artista" + 2, 30000);
-        lista[3] = new music("track" + 3, "artista" + 3, 30000);
-        lista[4] = new music("track" + 4, "artista" + 4, 30000);
-        lista[5] = new music("track" + 5, "artista" + 5, 30000);
-        lista[6] = new music("track" + 6, "artista" + 6, 30000);
-        lista[7] = new music("track" + 7, "artista" + 7, 30000);
-        lista[8] = new music("track" + 8, "artista" + 8, 30000);
-        lista[9] = new music("track" + 9, "artista" + 9, 30000);
-        lista[10] = new music("track" + 10, "artista" + 10, 30000);
-        lista[11] = new music("track" + 11, "artista" + 11, 30000);
+        lista.add(new music("Industry Baby", "Lil Nas X", 30000));
+        lista.add(new music("Montero", "Lil Nas X", 30000));
+        lista.add(new music("Holiday", "Lil Nas X", 30000));
+        lista.add(new music("Old Town Road", "Lil Nas X", 30000));
+        lista.add(new music("Rodeo", "Lil Nas X", 30000));
+        lista.add(new music("Panini", "Lil Nas X", 30000));
+        lista.add(new music("Meu pedaço de pecado", "João Gomes", 30000));
+        lista.add(new music("Aquelas coisas", "João Gomes", 30000));
+        lista.add(new music("Eu tenho a senha", "João Gomes", 30000));
+        lista.add(new music("Mete um Block nele", "João Gomes", 30000));
+        lista.add(new music("Volta comigo BB", "Zé Vaqueiro", 30000));
+        lista.add(new music("Meia Noite", "Zé Vaqueiro", 30000));
     }
     public music getMusica(int indice){
-        return this.lista[indice];
+
+        return this.lista.get(indice);
     }
     public String getNomeMusica(int indice){
-        return this.lista[indice].getNomeMusica();
+        return this.lista.get(indice).getNomeMusica();
     }
+
 }

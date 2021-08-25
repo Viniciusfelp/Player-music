@@ -36,5 +36,9 @@ public class music {
         this.duracaoMusica = duracaoMusica;
     }
 
+    @Override
+    public String toString(){
+        return this.nomeMusica;
+    }
 }
 
