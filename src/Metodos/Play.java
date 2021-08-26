@@ -3,7 +3,6 @@ package Metodos;
 import Classes.playList;
 
 public class Play extends Thread{
-   public int progressBarValue=0;
     private playList listaDeReproducao;
 
     public Play(playList listaDeReproducao) {
@@ -12,7 +11,7 @@ public class Play extends Thread{
     }
     public void run() {
         try {
-            sleep(listaDeReproducao.play(listaDeReproducao.getMusicaAtual()));
+            sleep(listaDeReproducao.buscaDuracao(listaDeReproducao.getMusicaAtual()));
             if (listaDeReproducao.getPlaylist().size()>listaDeReproducao.getMusicaAtual()+1){
                 new avancar(listaDeReproducao).run();
             }

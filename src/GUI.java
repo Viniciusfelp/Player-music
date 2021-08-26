@@ -239,7 +239,7 @@ public class GUI implements ActionListener {
    @Override
    public void actionPerformed(ActionEvent e) {
       Thread add_thread = new Thread();
-      Thread rmv_thread=new Thread();
+      Thread rmv_thread = new Thread();
       switch (e.getActionCommand()){
          case "Ok": //Botão do Pop-up que salva a nova música na playlist
             music musicToBeAdded = new music(musicNameText.getText(),authorNameText.getText(),30000);
@@ -308,16 +308,14 @@ public class GUI implements ActionListener {
             break;
          case "Normal/Random":
             //AQUI VAI A LÓGICA DE ALTERAR O MODO DE REPRODUÇÃO ENTRE RANDOM E NORMAL
-            if(isRandom){
-               isRandom=!isRandom; //SEMPRE QUE O BOTÃO É CLICADO ELE CAI EM UM DOS SEGUINTES CONDICIONAIS E INVERTE O VALOR POIS O MODO FOI ALTERADO
+            if(playerDeMusicas.isRandom()){
+               playerDeMusicas.setRandom(false); //SEMPRE QUE O BOTÃO É CLICADO ELE CAI EM UM DOS SEGUINTES CONDICIONAIS E INVERTE O VALOR POIS O MODO FOI ALTERADO
             }else{
-               isRandom=!isRandom;
+               playerDeMusicas.setRandom(true);
             }
             break;
       }
-      //add_thread.join(); RETIRAR OS JOIN (COM JOIN FICA SEQUENCIAL)
-      //rmv_thread.join();
-      //play_thread.join();
+
 
    }
    //Thread Play
@@ -330,7 +328,7 @@ public class GUI implements ActionListener {
             nomeLabel.setText("Nome: "+playerDeMusicas.getPlaylist().get(playerDeMusicas.getMusicaAtual()).getNomeMusica());
             autorLabel.setText("Artista: "+playerDeMusicas.getPlaylist().get(playerDeMusicas.getMusicaAtual()).getNomeArtista());
             duracaoLabel.setText("Duração(ms): "+Integer.toString(playerDeMusicas.getPlaylist().get(playerDeMusicas.getMusicaAtual()).getDuracaoMusica()));
-            sleep(playerDeMusicas.play(playerDeMusicas.getMusicaAtual()));
+            sleep(playerDeMusicas.buscaDuracao(playerDeMusicas.getMusicaAtual()));
             if (playerDeMusicas.getPlaylist().size()>playerDeMusicas.getMusicaAtual()+1){
                avancar_thread = new Thread(new avancar(playerDeMusicas,isAvancarAfterRemove));
                avancar_thread.start();
