@@ -5,12 +5,13 @@ import java.util.Collections;
 
 public class playList {
     private ArrayList<music>playlist;
-    private ArrayList<music> playlistBackup;
+    ArrayList<music> playlistBackup = new ArrayList<>();
     private int musicaAtual;
     private boolean random;
+
     public playList(){ //construtor
         this.playlist= new ArrayList<>();
-        this.playlistBackup = playlist;
+       // this.playlistBackup = playlist;
         this.musicaAtual = 0;
         this.random = false;
 
@@ -19,6 +20,7 @@ public class playList {
         playlist.add(musica);
         System.out.println(musica.getNomeMusica()+" Adicionada com sucesso!");
     }
+
     public void removeMusic (int i){ //remover música do arrayList
         if(playlist.isEmpty()){
             System.out.println("A playList está vazia");
@@ -36,11 +38,6 @@ public class playList {
             System.out.println("Música não encontrada!");
         }else{
             System.out.println(playlist.get(i).getNomeMusica()+"");
-        }
-        if(random) {
-            Collections.shuffle(playlist);
-        } else{
-            playlist = playlistBackup;
         }
         return playlist.get(i).getDuracaoMusica();
     }
@@ -62,6 +59,21 @@ public class playList {
     public ArrayList<music> getPlaylist() {
         return this.playlist;
     }
+
+    public void setPlaylistRandom(){
+        playlistBackup.clear();
+       this.playlist.forEach(music -> {
+           playlistBackup.add(music);
+       });
+      Collections.shuffle(this.playlist);
+    }
+    public void setPlaylistNormal(){
+        this.playlist.clear();
+        playlistBackup.forEach(music -> {
+            this.playlist.add(music);
+        });
+    }
+
     public boolean isRandom() {
         return random;
     }

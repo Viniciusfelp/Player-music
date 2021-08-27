@@ -25,7 +25,7 @@ public class GUI implements ActionListener {
 
    boolean pauseFlag = false;
    boolean isAvancarAfterRemove=false;
-   boolean isRandom = false;
+  // boolean isRandom = false;
 
    //Threads
    Thread play_thread = new Thread();
@@ -223,6 +223,13 @@ public class GUI implements ActionListener {
       guiFrame.setVisible(true);
 
    }
+   public void updatePlaylistModel(){
+      DefaultListModel newPlaylistModel = new DefaultListModel();
+      playerDeMusicas.getPlaylist().forEach(music->{
+         newPlaylistModel.addElement(music);
+      });
+      actualPlaylist.setModel(newPlaylistModel);
+   }
    public void addAtPlaylist(music musicAdded){
       actualPlaylist.setModel(playlistModel);
       playlistModel.addElement(musicAdded);
@@ -309,9 +316,27 @@ public class GUI implements ActionListener {
          case "Normal/Random":
             //AQUI VAI A LÓGICA DE ALTERAR O MODO DE REPRODUÇÃO ENTRE RANDOM E NORMAL
             if(playerDeMusicas.isRandom()){
-               playerDeMusicas.setRandom(false); //SEMPRE QUE O BOTÃO É CLICADO ELE CAI EM UM DOS SEGUINTES CONDICIONAIS E INVERTE O VALOR POIS O MODO FOI ALTERADO
+               playerDeMusicas.setRandom(false);//SEMPRE QUE O BOTÃO É CLICADO ELE CAI EM UM DOS SEGUINTES CONDICIONAIS E INVERTE O VALOR POIS O MODO FOI ALTERADO
+               playerDeMusicas.setPlaylistNormal();
+               playerDeMusicas.setMusicaAtual(0);
+               updatePlaylistModel();
+               play_thread.stop();
+               playTimer.stop();
+               play_thread= new Thread(new Play(playerDeMusicas));
+               playTimer=new Thread(new Timer());
+               playTimer.start();
+               play_thread.start();
             }else{
                playerDeMusicas.setRandom(true);
+               playerDeMusicas.setPlaylistRandom();
+               playerDeMusicas.setMusicaAtual(0);
+               updatePlaylistModel();
+               play_thread.stop();
+               playTimer.stop();
+               play_thread= new Thread(new Play(playerDeMusicas));
+               playTimer=new Thread(new Timer());
+               playTimer.start();
+               play_thread.start();
             }
             break;
       }
